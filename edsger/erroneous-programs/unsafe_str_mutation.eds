@@ -1,0 +1,50 @@
+/*  In this toy example, we attempt to highlight the immutability 
+ *  constraint that is imposed on constant strings in Edsger.
+ */
+
+#include "string.h"
+#include "stdio.h"
+
+/*  The function that showcases the issue is quite simple. It accepts 
+ *  a `char` pointer, prints its contents and then calls the nested 
+ *  function `mutate`, in hope of overwriting any preexisting data. 
+ *  Afterwards, it prints the mutated contents.
+ */
+void unsafe_mutation_showcase(char * s){
+	void mutate(char * s){
+		strcpy(s, "Overwritten String\n");
+	}
+	writeString("Before string mutation: "); writeString(s);
+	mutate(s); 	
+	writeString("After string mutation: "); writeString(s);
+}
+
+
+/* The following call to `unsafe_mutation_showcase` is bad because,
+ * we pass an "immutable" string as an argument. In Edsger there are 
+ * two "flavors" of strings, constants and mutable character arrays. 
+ * If we call a function that mutates a string, we must be very careful 
+ * to not pass a constant string as an argument, since this should lead 
+ * in a segmentation fault.
+ */
+void main(){
+	char s[20];
+	strcpy(s, "Initial String\n");
+	unsafe_mutation_showcase(s);
+	// unsafe_mutation_showcase("Initial String\n");
+}
+
+
+/*  A proper call to `unsafe_mutation_showcase` would be the following:
+ *
+ *    void main(){
+ *       char s[20];  // In this point we "predict" the size that 
+ *		      // `unsafe_mutation_showcase` needs. This is not
+ *  		      // a good practice but this is only a toy example.
+ *       strcpy(s, "Initial String\n");
+ *       unsafe_mutation_showcase(s);
+ *    }
+ * 
+ *  The contents of a `char` array must be mutable, thus the previous
+ *  `unsafe_mutation_showcase` call should work properly.
+ */
